@@ -1,0 +1,249 @@
+//chatgpt link.
+https://chatgpt.com/c/675affa4-d0e8-8008-a64a-3e10820f2727
+
+# Step-by-Step Guide to Build a Todo List Application in Angular
+
+This guide provides a comprehensive walkthrough for developing a Todo List application using Angular. By completing this project, you will gain foundational knowledge of Angular concepts such as components, data binding, directives, forms, event handling, and leveraging localStorage for data persistence.
+
+## Prerequisites
+1. **Install Node.js and npm**: [Download and install Node.js](https://nodejs.org/).
+2. **Install Angular CLI**: Execute the command `npm install -g @angular/cli` in your terminal.
+3. **Familiarity with HTML, CSS, and JavaScript**: Basic knowledge is recommended but not required.
+
+---
+
+## 1. Create a New Angular Project
+
+Run the following commands to initialize your project:
+
+```bash
+ng new todo-app
+cd todo-app
+```
+- Select **CSS** as the preferred styling option when prompted.
+
+---
+
+## 2. Generate Components
+Angular components are the core building blocks of the application. Here, you will create a component for managing tasks.
+
+### Generate a Task Component
+
+```bash
+ng generate component task
+```
+This creates a `task` directory inside `src/app` containing the following files:
+- `task.component.ts`
+- `task.component.html`
+- `task.component.css`
+- `task.component.spec.ts`
+
+---
+
+## 3. Define the Application Layout
+
+### Update `app.component.html`
+Replace the existing content with:
+
+```html
+<div class="container">
+  <h1>Todo List Application</h1>
+  <app-task></app-task>
+</div>
+```
+
+### Add Global Styles in `styles.css`
+Include the following CSS in `src/styles.css` to enhance the layout:
+
+```css
+.container {
+  max-width: 600px;
+  margin: 50px auto;
+  text-align: center;
+}
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+```
+
+---
+
+## 4. Develop the Task Component
+
+### Create a Task Model
+Define a TypeScript interface for tasks in `src/app/models/task.model.ts`:
+
+```typescript
+export interface Task {
+  id: number;
+  title: string;
+  isCompleted: boolean;
+}
+```
+
+### Update `task.component.ts`
+Implement the logic for managing tasks in the `task.component.ts` file:
+
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { Task } from '../models/task.model';
+
+@Component({
+  selector: 'app-task',
+  templateUrl: './task.component.html',
+  styleUrls: ['./task.component.css']
+})
+export class TaskComponent implements OnInit {
+  tasks: Task[] = [];
+  newTask: string = '';
+
+  constructor() {}
+
+  ngOnInit(): void {
+    this.loadTasks();
+  }
+
+  addTask(): void {
+    if (this.newTask.trim()) {
+      const task: Task = {
+        id: Date.now(),
+        title: this.newTask,
+        isCompleted: false
+      };
+      this.tasks.push(task);
+      this.newTask = '';
+      this.saveTasks();
+    }
+  }
+
+  deleteTask(id: number): void {
+    this.tasks = this.tasks.filter(task => task.id !== id);
+    this.saveTasks();
+  }
+
+  toggleCompletion(task: Task): void {
+    task.isCompleted = !task.isCompleted;
+    this.saveTasks();
+  }
+
+  loadTasks(): void {
+    const savedTasks = localStorage.getItem('tasks');
+    if (savedTasks) {
+      this.tasks = JSON.parse(savedTasks);
+    }
+  }
+
+  saveTasks(): void {
+    localStorage.setItem('tasks', JSON.stringify(this.tasks));
+  }
+}
+```
+
+### Update `task.component.html`
+Modify the `task.component.html` to display and manage tasks:
+
+```html
+<div>
+  <input
+    type="text"
+    placeholder="Add a new task"
+    [(ngModel)]="newTask"
+    (keyup.enter)="addTask()"
+  />
+  <button (click)="addTask()">Add Task</button>
+
+  <ul>
+    <li *ngFor="let task of tasks">
+      <input
+        type="checkbox"
+        [checked]="task.isCompleted"
+        (change)="toggleCompletion(task)"
+      />
+      <span [class.completed]="task.isCompleted">{{ task.title }}</span>
+      <button (click)="deleteTask(task.id)">Delete</button>
+    </li>
+  </ul>
+</div>
+```
+
+### Add Component-Specific Styles in `task.component.css`
+
+```css
+input[type='text'] {
+  width: 70%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+button {
+  padding: 10px;
+  margin-left: 5px;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.completed {
+  text-decoration: line-through;
+  color: grey;
+}
+```
+
+---
+
+## 5. Enable FormsModule for Two-Way Binding
+
+Import `FormsModule` in the `AppModule` to enable two-way binding. Open `src/app/app.module.ts` and modify it as follows:
+
+```typescript
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+
+import { AppComponent } from './app.component';
+import { TaskComponent } from './task/task.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    TaskComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule {}
+```
+
+---
+
+## 6. Run the Application
+
+Start the development server by running:
+
+```bash
+ng serve
+```
+
+Open [http://localhost:4200](http://localhost:4200) in your web browser to see the application in action.
+
+---
+
+## Summary
+You have successfully built a functional Todo List application using Angular. Through this project, you explored fundamental Angular concepts such as components, data binding, directives, forms, event handling, and data persistence with localStorage.
+
+### Next Steps
+Consider expanding your application by:
+- Adding filters to view active, completed, or all tasks.
+- Enhancing the UI using Angular Material.
+- Implementing a backend API for task management instead of localStorage.
+
